@@ -1,0 +1,9 @@
+# dotnet
+**/bin/
+**/obj/
+
+# vagrant 
+**/.vagrant/
+
+#annoying
+**/HighStakes.Testing/coverage.json

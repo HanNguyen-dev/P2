@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  dbase:
+    image: postgres:alpine
+    # restart: always
+    networks:
+      - highstakesnet
+    ports:
+      - 5432:5432
+    # environment:
+    #   POSTGRES_PASSWORD: 'postgres'
+    # volumes:
+    #   - database_data:/var/lib/postgresql/data
+    # links:
+    #   - "api"
+
+
+  api:
+    image: api:latest
+    build:
+      context: ./
+      dockerfile: dockerfile-api.dockerfile
+    depends_on:
+      - dbase
+    expose:
+      - "4000"
+    ports:
+      - "4000:80"
+    networks:
+      - highstakesnet
+    links:
+      - "dbase"
+
+  mvc:
+    image: mvc:latest
+    depends_on:
+      - api
+    build:
+      context: ./
+      dockerfile: dockerfile-mvc.dockerfile
+    expose:
+      - "5000"
+    ports:
+      - "5000:80"
+    networks:
+      - highstakesnet
+    links:
+      - "api"
+
+networks:
+  highstakesnet:
+    driver: bridge

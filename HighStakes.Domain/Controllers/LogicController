@@ -1,0 +1,68 @@
+using System.Threading.Tasks;
+using HighStakes.Storing.Models;
+using HighStakes.Storing.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+
+namespace HighStakes.Domain.Controllers
+{
+    [Route("/api/[controller]/[action]")]
+    [ApiController]
+    public class LogicController : ControllerBase
+    {
+        private static UserRepository _uRepo = new UserRepository();
+
+        [HttpGet("{username}/{password}")]
+        public async Task<string> Login(string username, string password)
+        {
+            var user = _uRepo.GetUser(username, password);
+            string returnVal = JsonConvert.SerializeObject(user);
+            return await Task.Run(() => { return returnVal;});
+        }
+
+
+        [HttpGet]
+        public async Task<string> GetTable()
+        {
+            DTable table = new DTable();
+            table.Initialize(10, 20);
+            string returnVal = JsonConvert.SerializeObject(table);
+            return await Task.Run(() => { return returnVal;});
+        }
+
+        [HttpGet("{jsonTable}/{jsonUser}")]
+        public async Task<string> JoinTable(string jsonTable, string jsonUser)
+        {
+            DTable table = JsonConvert.DeserializeObject<DTable>(jsonTable);
+            DUser player = JsonConvert.DeserializeObject<DUser>(jsonUser);
+
+            table.JoinGame(player);
+
+            string returnVal = JsonConvert.SerializeObject(table);
+            return await Task.Run(() => { return returnVal;});
+        }
+
+        [HttpGet("{jsonTable}")]
+        public async Task<string> StartGame(string jsonTable)
+        {
+            DTable table = JsonConvert.DeserializeObject<DTable>(jsonTable);
+
+            table.StartGame();
+
+            string returnVal = JsonConvert.SerializeObject(table);
+            return await Task.Run(() => { return returnVal;});
+        }
+
+        [HttpGet("{jsonTable}")]
+        public async Task<string> StartRound(string jsonTable)
+        {
+            DTable table = JsonConvert.DeserializeObject<DTable>(jsonTable);
+
+            table.StartRound();
+
+            string returnVal = JsonConvert.SerializeObject(table);
+            return await Task.Run(() => { return returnVal;});
+        }
+
+    }
+}

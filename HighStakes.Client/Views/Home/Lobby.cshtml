@@ -1,0 +1,27 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<param id="user" value=@ViewData["userTemp"]>
+
+<div class="text-center">
+  <h1 class="display-4" style="color: White">The Lobby</h1>
+</div>
+<br>
+<div class="text-center">
+  <p style="color: white;">Enter Room 1</p>
+  <a href="/home/payment"> <img src="/images/card-symbols.jpg" id="lobby" width="30%" height="30%" alt="roomicon"> </a>
+</div>
+
+
+
+<style>
+  body {
+    background-color: black;
+    background-position: center;
+  }
+</style>
+
+<script>
+  window.sessionStorage.UserID = @ViewData["userTemp"];
+  window.sessionStorage.UserID = $('#user').val();
+</script>

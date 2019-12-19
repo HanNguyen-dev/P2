@@ -1,0 +1,38 @@
+﻿@model HighStakes.Client.Models.Player
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+<div class="text-center">
+    <h1 class="display-4" style="color: White">Welcome to Highstakes</h1>
+</div>
+<div style="background-color:Tomato; margin-left: 60%; padding: 40px">
+<form action="/home/lobby" method="post">
+@Html.AntiForgeryToken()
+  <div class="form-group">
+    <label for="username">Username</label>
+    <input data-val="true" data-val-length="The field Name must be a string with a maximum length of 50." data-val-length-max="50" maxlength="50" type="text" class="form-control" id="username" name="username" aria-describedby="emailHelp" placeholder="Enter username">
+    @Html.ValidationMessageFor(m => m.username)
+    <small id="emailHelp" class="form-text text-muted">We'll never share your account with anyone else.</small>
+  </div>
+
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input data-val="true" data-val-length="The field Name must be a string with a maximum length of 50." data-val-length-max="50" maxlength="50" type="password" class="form-control" id="password" name="password" placeholder="Password">
+  </div>
+@Html.ValidationMessageFor(m => m.password)
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+<br>
+<a href="/home/register">Create an account.</a>
+
+</div>
+
+<style>
+  body {
+    background-image: url('/images/vegas_sign.jpg');
+    background-position: center;
+  }
+</style>

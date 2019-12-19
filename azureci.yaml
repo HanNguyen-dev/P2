@@ -1,0 +1,75 @@
+name: $(date:yyyyMMdd)$(rev:.rr) #20191209.00
+
+trigger:
+  - master  # triger the build if master changes
+
+stages:
+  - stage: compile
+    jobs:
+      - job: aspnet
+        pool:
+          vmImage: ubuntu-18.04
+        steps:
+          - task: UseDotNet@2
+            inputs:
+              packageType: 'sdk'
+              version: '3.1.100'
+          - script: |
+              dotnet build HighStakes.sln
+              # docker image pull postgres:alpine
+              # docker container run -dit --rm --name postgres -p 5432:5432 postgres:alpine
+              # dotnet tool install --global dotnet-ef --version 3.0.0
+              # dotnet ef migrations add --startup-project HighStakes.Client/HighStakes.Client.csproj --project HighStakes.Storing/HighStakes.Storing.csproj pipeline-migration
+              # dotnet ef database update -s HighStakes.Client/HighStakes.Client.csproj -p HighStakes.Storing/HighStakes.Storing.csproj
+  - stage: test
+    jobs:
+      - job: aspnet_test
+        pool:
+          vmImage: ubuntu-18.04
+        steps:
+          - script: dotnet test HighStakes.sln --logger trx /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=\"cobertura,opencover\"
+          - task: PublishCodeCoverageResults@1
+            inputs:
+              codeCoverageTool: cobertura
+              summaryFileLocation: '**/coverage.cobertura.xml'
+  - stage: analyze
+    jobs:
+      - job:
+        pool:
+          vmImage: ubuntu-18.04
+        steps:
+          - task: UseDotNet@2
+            inputs:
+              packageType: 'sdk'
+              version: '3.1.100'
+          - script: dotnet tool install --global dotnet-sonarscanner
+          - script: |
+              dotnet sonarscanner begin \
+              /k:Project-2 \
+              /o:simar-pannu \
+              /d:sonar.host.url=https://sonarcloud.io/ \
+              /d:sonar.login=$SONAR_TOKEN \
+              /d:sonar.exclusions=**/wwwroot/lib/**,HighStakes.Client/*.cs,**/Migrations/**,HighStakes.Storing/Context/** \
+              /d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml \
+              /d:sonar.cs.vstest.reportsPaths=**/*.trx
+              dotnet build HighStakes.sln
+              dotnet test HighStakes.sln --logger trx /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=\"cobertura,opencover\"
+              dotnet sonarscanner end /d:sonar.login=$SONAR_TOKEN
+            env:
+              SONAR_TOKEN: $(SONAR_LOGIN)
+  - stage: pack
+    jobs:
+      - job:
+        pool:
+          vmImage: ubuntu-18.04
+        steps:
+          - script: docker image build -f dockerfile -t sspannu/highstakes2:$BUILD_NAME .
+            env:
+              BUILD_NAME: $(Build.DefinitionName)
+          - script: docker login --username $DOCKER_USER --password $DOCKER_TOKEN
+            env:
+              DOCKER_TOKEN: $(DOCKER_TOKEN)
+              DOCKER_USER: $(DOCKER_USER)
+          - script: docker image push sspannu/highstakes2:$BUILD_NAME
+            env:
+              BUILD_NAME: $(Build.DefinitionName)

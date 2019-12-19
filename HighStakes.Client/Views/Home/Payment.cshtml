@@ -1,0 +1,36 @@
+@model HighStakes.Client.Models.JoinTable
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+<div class="text-center">
+    <h1 class="display-4" style="color: green; text-shadow: 2px 2px black;">Payment</h1>
+</div>
+<div class="text-center" style="background-color:lightgreen; padding: 40px; margin-left:30%; margin-right:30%">
+<form action="/home/table" method="post">
+  <div class="form-group">
+    <input type="text" id="userID" name="userID" style="visibility: hidden">
+    <label for="buyIn">Enter the amount</label>
+    <input type="text" class="form-control" id="buyIn" name="buyIn" aria-describedby="emailHelp" placeholder="Amount">
+    <small id="chipamount" class="form-text text-muted">Make sure you have money.</small>
+  </div>
+
+
+  <button type="submit" class="btn btn-primary">Enter Room</button>
+</form>
+<br>
+
+</div>
+
+<style>
+  body {
+    background-image: url('/images/one-dollar-bill.jpg');
+    background-position: center;
+  }
+</style>
+<script>
+  document.getElementById("userID").value = Number(window.sessionStorage.UserID);
+  $('#userID').val(Number(window.sessionStorage.UserID));
+</script>
